@@ -13,7 +13,7 @@ import (
 func main() {
 	router := mux.NewRouter()
 
-	fs := http.FileServer(http.Dir("/home/pi/jp-deck-creator/static"))
+	fs := http.FileServer(http.Dir("static"))
 
 	router.HandleFunc("/createlist", CreateList).Methods("POST")
 	router.Handle("/", fs)
