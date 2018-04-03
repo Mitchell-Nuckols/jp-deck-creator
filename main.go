@@ -18,7 +18,7 @@ func main() {
 	router.HandleFunc("/createlist", CreateList).Methods("POST")
 	router.Handle("/", fs)
 
-	http.ListenAndServe("localhost:8080", router)
+	http.ListenAndServe(":4545", router)
 }
 
 func CreateList(w http.ResponseWriter, r *http.Request) {
