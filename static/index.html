@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Memrise/Anki Deck Generator</title>
+
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css" integrity="sha256-2k1KVsNPRXxZOsXQ8aqcZ9GOOwmJTMoOB5o5Qp1d6/s=" crossorigin="anonymous" />
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+        <script type="text/javascript">
+            function generateList() {
+                $.ajax({
+                    url: '/createlist',
+                    method: 'POST',
+                    data: $('#words').serializeArray(),
+                    success: function(data) {
+                        $('#result').val(data)
+                        $('#download').attr('href', generateTSV())
+                    }
+                })
+            }
+
+            function generateTSV() {
+                var data = new Blob([$('#result').val()], {type: 'text/tsv'});
+                var textFile = null
+
+                // If we are replacing a previously generated file we need to
+                // manually revoke the object URL to avoid memory leaks.
+                if (textFile !== null) {
+                    window.URL.revokeObjectURL(textFile);
+                }
+
+                textFile = window.URL.createObjectURL(data);
+
+                return textFile;
+            }
+
+            function downloadList() {
+
+            }
+        </script>
+    </head>
+    <body>
+        <section class="hero is-primary">
+            <div class="hero-body">
+                <div class="container">
+                    <h1 class="title">
+                        Memrise/Anki Deck Generator
+                    </h1>
+                    <h2 class="subtitle">
+                        By エステティック (Aesthetic)
+                    </h2>
+                </div>
+            </div>
+        </section>
+        <section class="section">
+            <div class="container">
+                <div class="content">
+                    <p>
+                        This page makes use of <a href="http://jisho.org">jisho.org</a> to generate a .tsv (tab separated value) file that can be imported into Memrise or Anki. When creating a deck on Memrise, be sure to put the fields in this order: "Kanji", "Kana", "English", "Part of Speech" (make this section an attribute). The recommended configuration is to test on kanji, prompt with English, and show kana after test. Additionally, you can create a second level to test on kana and prompt with kanji to remember pronunciation. If you're using Memrise, just copy the text (not including the first row) and import it with the "Bulk Add Words" option under the "Advanced" menu.
+                    </p>
+                </div>
+                <form id="words">
+                    <textarea id="list" name="list" placeholder="Add your words here..." rows="15" class="textarea"></textarea>
+                    <br>
+                    <a class="button is-primary" onClick="generateList()">Create List</a>
+                    <a id="download" download="list.tsv" class="button is-primary" onClick="downloadList()">Download List</a>
+                </form>
+                <br>
+                <textarea id="result"rows="15" class="textarea"></textarea>
+            </div>
+        </section>
+    </body>
+</html>
