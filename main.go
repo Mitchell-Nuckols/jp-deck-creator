@@ -18,7 +18,7 @@ func main() {
 	router.HandleFunc("/createlist", CreateList).Methods("POST")
 	router.Handle("/", fs)
 
-	http.ListenAndServe(":4545", router)
+	http.ListenAndServe("localhost:4545", router)
 }
 
 func CreateList(w http.ResponseWriter, r *http.Request) {
@@ -38,45 +38,62 @@ func CreateList(w http.ResponseWriter, r *http.Request) {
 		var jisho Jisho
 		decoder.Decode(&jisho)
 
-		for i, p := range jisho.Data[0].Senses[0].PartsOfSpeech {
-			p = strings.ToLower(p)
-			switch p {
-			case "godan verb with u ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-う"
-			case "godan verb with ku ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-く"
-			case "godan verb with su ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-す"
-			case "godan verb with tsu ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-つ"
-			case "godan verb with nu ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-ぬ"
-			case "godan verb with bu ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-ぶ"
-			case "godan verb with mu ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-む"
-			case "godan verb with ru ending":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-る"
-			case "ichidan verb":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "1v"
-			case "suru verb":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "v-する"
-			case "transitive verb":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "vt"
-			case "intransitive verb":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "vi"
-			case "noun":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "n"
-			case "i-adjective":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "い-adj"
-			case "na-adjective":
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = "な-adj"
-			default:
-				jisho.Data[0].Senses[0].PartsOfSpeech[i] = p
+		if len(jisho.Data) > 0 && len(jisho.Data[0].Senses) > 0 {
+			for i, p := range jisho.Data[0].Senses[0].PartsOfSpeech {
+				p = strings.ToLower(p)
+				switch p {
+				case "godan verb with u ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-う"
+				case "godan verb with ku ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-く"
+				case "godan verb with gu ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-ぐ"
+				case "godan verb with su ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-す"
+				case "godan verb with tsu ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-つ"
+				case "godan verb with nu ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-ぬ"
+				case "godan verb with bu ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-ぶ"
+				case "godan verb with mu ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-む"
+				case "godan verb with ru ending":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "5v-る"
+				case "ichidan verb":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "1v"
+				case "suru verb":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "v-する"
+				case "transitive verb":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "vt"
+				case "intransitive verb":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "vi"
+				case "noun":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "n"
+				case "adverb":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "adv"
+				case "adverb taking the 'to' particle":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "と-adv"
+				case "i-adjective":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "い-adj"
+				case "na-adjective":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "な-adj"
+				case "no-adjective":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "の-adj"
+				case "expression":
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = "exp"
+				default:
+					jisho.Data[0].Senses[0].PartsOfSpeech[i] = p
+				}
 			}
 		}
 
-		list = append(list, []string{jisho.Data[0].Japanese[0].Word, "\t", jisho.Data[0].Japanese[0].Reading, "\t", strings.Join(jisho.Data[0].Senses[0].EnglishDefinitions, ", "), "\t", strings.Join(jisho.Data[0].Senses[0].PartsOfSpeech, ", "), "\n"}...)
+		if len(jisho.Data) > 0 {
+			if jisho.Data[0].Japanese[0].Word == "" {
+				jisho.Data[0].Japanese[0].Word = jisho.Data[0].Japanese[0].Reading
+			}
+			list = append(list, []string{jisho.Data[0].Japanese[0].Word, "\t", jisho.Data[0].Japanese[0].Reading, "\t", strings.Join(jisho.Data[0].Senses[0].EnglishDefinitions, ", "), "\t", strings.Join(jisho.Data[0].Senses[0].PartsOfSpeech, ", "), "\n"}...)
+		}
 	}
 
 	w.WriteHeader(http.StatusOK)

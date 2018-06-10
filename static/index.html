@@ -12,14 +12,26 @@
                     method: 'POST',
                     data: $('#words').serializeArray(),
                     success: function(data) {
-                        $('#result').val(data)
+                        var rows = data.split('\n')
+                        rows.shift()
+                        for(var r = 0; r < rows.length; r++) {
+                            var cells = rows[r].split('\t')
+                            var append = '<tr>'
+                            for(var c = 0; c < cells.length; c++) {
+                                append += '<td>' + cells[c] + '</td>'
+                            }
+                            append += '</tr>'
+                            $('#result').append(append)
+                        }
+
+                        $('#raw').val(data)
                         $('#download').attr('href', generateTSV())
                     }
                 })
             }
 
             function generateTSV() {
-                var data = new Blob([$('#result').val()], {type: 'text/tsv'});
+                var data = new Blob([$('#raw').val()], {type: 'text/tsv'});
                 var textFile = null
 
                 // If we are replacing a previously generated file we need to
@@ -31,10 +43,6 @@
                 textFile = window.URL.createObjectURL(data);
 
                 return textFile;
-            }
-
-            function downloadList() {
-
             }
         </script>
     </head>
@@ -55,7 +63,7 @@
             <div class="container">
                 <div class="content">
                     <p>
-                        This page makes use of <a href="http://jisho.org">jisho.org</a> to generate a .tsv (tab separated value) file that can be imported into Memrise or Anki. When creating a deck on Memrise, be sure to put the fields in this order: "Kanji", "Kana", "English", "Part of Speech" (make this section an attribute). The recommended configuration is to test on kanji, prompt with English, and show kana after test. Additionally, you can create a second level to test on kana and prompt with kanji to remember pronunciation. If you're using Memrise, just copy the text (not including the first row) and import it with the "Bulk Add Words" option under the "Advanced" menu.
+                        This page makes use of <a href="http://jisho.org">jisho.org</a> to generate a .tsv (tab separated value) file that can be imported into Memrise or Anki. When creating a deck on Memrise, be sure to put the fields in this order: "Kanji", "Kana", "English", "Part of Speech" (make this section an attribute). The recommended configuration is to test on kanji, prompt with English, and show kana after test. Additionally, you can create a second level to test on kana and prompt with kanji to remember pronunciation. If you're using Memrise, just copy the text (not including the column labels) and import it with the "Bulk Add Words" option under the "Advanced" menu.
                     </p>
                 </div>
                 <form id="words">
@@ -65,7 +73,21 @@
                     <a id="download" download="list.tsv" class="button is-primary" onClick="downloadList()">Download List</a>
                 </form>
                 <br>
-                <textarea id="result"rows="15" class="textarea"></textarea>
+                <table id="result" class="table">
+                    <thead>
+                        <tr>
+                            <th>Kanji</th>
+                            <th>Kana</th>
+                            <th>English</th>
+                            <th>Part of Speech</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                    </tbody>
+                </table>
+                <br>
+                <textarea id="raw" placeholder="Raw text will appear here..." rows="15" class="textarea"></textarea>
             </div>
         </section>
     </body>
