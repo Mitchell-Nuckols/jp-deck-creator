@@ -4,6 +4,11 @@
         <title>Memrise/Anki Deck Generator</title>
 
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.6.2/css/bulma.min.css" integrity="sha256-2k1KVsNPRXxZOsXQ8aqcZ9GOOwmJTMoOB5o5Qp1d6/s=" crossorigin="anonymous" />
+        <style type="text/css">
+            td {
+                vertical-align: middle !important;
+            }
+        </style>
         <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
         <script type="text/javascript">
             function generateList() {
@@ -12,6 +17,7 @@
                     method: 'POST',
                     data: $('#words').serializeArray(),
                     success: function(data) {
+                        $('#result tbody').replaceWith(document.createElement('tbody'))
                         var rows = data.split('\n')
                         rows.shift()
                         for(var r = 0; r < rows.length; r++) {
@@ -20,8 +26,11 @@
                             for(var c = 0; c < cells.length; c++) {
                                 append += '<td>' + cells[c] + '</td>'
                             }
+                            if(r != rows.length-1) {
+                                append += '<td><audio controls><source src="https://assets.languagepod101.com/dictionary/japanese/audiomp3.php?kanji=' + encodeURIComponent(cells[0]) + '&kana=' + encodeURIComponent(cells[1]) + '" type="audio/mpeg"></audio></td>'
+                            }
                             append += '</tr>'
-                            $('#result').append(append)
+                            $('#result tbody').append(append)
                         }
 
                         $('#raw').val(data)
@@ -80,6 +89,7 @@
                             <th>Kana</th>
                             <th>English</th>
                             <th>Part of Speech</th>
+                            <th>Audio</th>
                         </tr>
                     </thead>
                     <tbody>
